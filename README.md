@@ -124,6 +124,7 @@ You can promote any extension status key into its own dedicated powerline item. 
 - `position` (optional): `left`, `right`, or `secondary` (default `right`)
 - `prefix` (optional): text shown before the live status value
 - `color` (optional): any Pi theme color (`warning`, `accent`, etc.) or hex (`#RRGGBB`)
+- `transforms` (optional): ordered regex replacements scoped to this custom item. Each rule supports `replace`, `with`, and optional `flags` (`g` by default). Use `with: ""` to remove matched text.
 - `hideWhenMissing` (optional): hide item when no status is present (default `true`)
 - `excludeFromExtensionStatuses` (optional): omit this key from the aggregate `extension_statuses` segment (default `true`)
 
@@ -194,6 +195,55 @@ Subscription cost display accepts:
 | `subscription` | `(sub)` | `(sub)` |
 | `reported-cost` | `$0.12` | `(sub)` |
 | `both` | `$0.12 (sub)` | `(sub)` |
+
+### Custom status transforms
+
+Per-`customItems` entry, attach an ordered list of regex `transforms` to reshape the live status before it is rendered. Each rule has a `replace` regex, a `with` replacement, and an optional `flags` string (`g` by default). Use `with: ""` to strip matched text.
+
+```json
+{
+  "powerline": {
+    "preset": "default",
+    "layout": {
+      "left": ["model", "thinking"],
+      "right": ["context_pct", "cost"],
+      "secondary": ["custom:quotas"]
+    },
+    "customItems": [
+      {
+        "id": "quotas",
+        "statusKey": "pi-quotas-usage",
+        "position": "secondary",
+        "transforms": [
+          {
+            "replace": "\\s*(?:\\x1b\\[[0-9;]*m)*left(?:\\x1b\\[[0-9;]*m)*\\s+",
+            "with": " "
+          },
+          {
+            "replace": "↺\\s*(?:\\x1b\\[[0-9;]*m)*in(?:\\x1b\\[[0-9;]*m)*\\s*",
+            "with": "↺ "
+          },
+          {
+            "replace": "\\)((?:(?:\\x1b\\[[0-9;]*m)|\\s)+)((?:\\x1b\\[[0-9;]*m)*\\d+[hd]:)",
+            "with": ")$1· $2"
+          },
+          {
+            "replace": "\\s*cap:(?:\\x1b\\[[0-9;]*m)*OK(?:\\x1b\\[[0-9;]*m)*\\s*",
+            "with": "",
+            "flags": "gi"
+          },
+          {
+            "replace": "\\s{2,}",
+            "with": " "
+          }
+        ],
+        "hideWhenMissing": true,
+        "excludeFromExtensionStatuses": true
+      }
+    ]
+  }
+}
+```
 
 ## Bash mode
 

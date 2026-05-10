@@ -104,12 +104,19 @@ export interface StatusLineLayout {
   secondary?: StatusLineSegmentId[];
 }
 
+export interface CustomStatusTransform {
+  replace: string;
+  with: string;
+  flags?: string;
+}
+
 export interface CustomStatusItem {
   id: string;
   statusKey: string;
   position: CustomItemPosition;
   color?: ColorValue;
   prefix?: string;
+  transforms?: CustomStatusTransform[];
   hideWhenMissing: boolean;
   excludeFromExtensionStatuses: boolean;
 }
